@@ -33,6 +33,4 @@ pip install -r requirements.txt
 python3 main.py
 ```
 
-I would be happy to hear your comments or criticisms about my project.
-Also, if you are interested in collaborating on this project, please contact me.
-Telegram: [My Account](https://t.me/E6L6F6)
+**I would be happy to hear your comments or criticisms about my project. Also, if you are interested in collaborating on this project, please contact me. Telegram: [My Account](https://t.me/E6L6F6)**
