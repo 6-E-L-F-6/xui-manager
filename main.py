@@ -133,7 +133,7 @@ async def delete_selected_config(event):
     if api.delete_inbound(inbound_id):
         await send_temp_message(event, '✅ کانفیگ با موفقیت حذف شد.')
     else:
-        await send_temp_message(event, '✅ کانفیگ با موفقیت حذف شد.')
+        await send_temp_message(event,'❌ کانفیگ با موفقیت حذف نشد.')
 
 
     await list_configs_menu(event, page=sessions[user_id].get('list_config_page', 0))
