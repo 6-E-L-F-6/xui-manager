@@ -88,43 +88,7 @@ async def start_create_config(event):
     await edit_or_send(event, 'لطفا نوع کانفیگ را انتخاب کنید:', buttons=buttons)
     step_manager.set_step(event.sender_id, 'SELECT_CONFIG_TYPE')
 
-async def delete_config_menu(event, page=0):
-    user_id = event.sender_id
-    if user_id not in sessions:
-        await edit_or_send(event, 'لطفا ابتدا یک پنل انتخاب کنید.')
-        return
-
-    api = sessions[user_id]['api']
-    inbounds = api.list_inbounds()
-    back_btn = [
-            [Button.inline('🔙 بازگشت', b'back_to_panel')]
-    ]
-    if not inbounds:
-        await edit_or_send(event, '❌ هیچ کانفیگی برای حذف وجود ندارد.',buttons=back_btn)
-        return
-
-    items_per_page = 10
-    start = page * items_per_page
-    end = start + items_per_page
-    page_items = inbounds[start:end]
-    sessions[user_id]['delete_config_page'] = page
-
-    buttons = []
-    for inbound in page_items:
-        label = inbound.remark if inbound.remark else f"None_{inbound.id}"
-        buttons.append([Button.inline(label, f'delete_config_{inbound.id}'.encode())])
-
-    nav_buttons = []
-    if page > 0:
-        nav_buttons.append(Button.inline('⬅️ قبلی', f'delete_config_page_{page - 1}'.encode()))
-    if end < len(inbounds):
-        nav_buttons.append(Button.inline('➡️ بعدی', f'delete_config_page_{page + 1}'.encode()))
-    if nav_buttons:
-        buttons.append(nav_buttons)
-
-    buttons.append([Button.inline('🔙 بازگشت', b'back_to_panel')])
-    await edit_or_send(event, 'یکی از کانفیگ‌های زیر را برای حذف انتخاب کنید:', buttons=buttons)
-
+    
 @client.on(events.CallbackQuery(pattern=b'delete_config_'))
 async def delete_selected_config(event):
     user_id = event.sender_id
@@ -140,72 +104,6 @@ async def delete_selected_config(event):
 
     await list_configs_menu(event, page=sessions[user_id].get('list_config_page', 0))
 
-
-@client.on(events.CallbackQuery(pattern=b'delete_user_config'))
-async def delete_config_menu_wrapper(event):
-    await delete_config_menu(event, page=0)
-
-@client.on(events.CallbackQuery(pattern=b'delete_config_page_'))
-async def delete_config_page_handler(event):
-    user_id = event.sender_id
-    try:
-        page = int(event.data.decode().split('_')[-1])
-    except ValueError:
-        return
-    await delete_config_menu(event, page=page)
-
-@client.on(events.CallbackQuery(pattern=b'update_user_config'))
-async def update_config_menu_wrapper(event):
-    await update_config_menu(event, page=0)
-
-async def update_config_menu(event, page=0):
-    user_id = event.sender_id
-    if user_id not in sessions:
-        back_btn = [
-            [Button.inline('🔙 بازگشت', b'back_to_panel')]
-        ]
-        await edit_or_send(event, 'لطفا ابتدا یک پنل انتخاب کنید.', buttons=back_btn)
-        return
-
-    api = sessions[user_id]['api']
-    inbounds = api.list_inbounds()
-
-    if not inbounds:
-        back_btn = [
-            [Button.inline('🔙 بازگشت', b'back_to_panel')]
-        ]
-        await edit_or_send(event, '❌ هیچ کانفیگی برای ویرایش وجود ندارد.', buttons=back_btn)
-        return
-
-    items_per_page = 10
-    start = page * items_per_page
-    end = start + items_per_page
-    page_items = inbounds[start:end]
-    sessions[user_id]['update_config_page'] = page
-
-    buttons = []
-    for inbound in page_items:
-        label = inbound.remark if inbound.remark else f"None_{inbound.id}"
-        buttons.append([Button.inline(f"✏️ {label}", f'edit_config_{inbound.id}'.encode())])
-
-    nav_buttons = []
-    if page > 0:
-        nav_buttons.append(Button.inline('⬅️ قبلی', f'update_config_page_{page - 1}'.encode()))
-    if end < len(inbounds):
-        nav_buttons.append(Button.inline('➡️ بعدی', f'update_config_page_{page + 1}'.encode()))
-    if nav_buttons:
-        buttons.append(nav_buttons)
-
-    buttons.append([Button.inline('🔙 بازگشت', b'back_to_panel')])
-    await edit_or_send(event, 'یکی از کانفیگ‌های زیر را برای ویرایش انتخاب کنید:', buttons=buttons)
-
-@client.on(events.CallbackQuery(pattern=b'update_config_page_'))
-async def update_config_page_handler(event):
-    try:
-        page = int(event.data.decode().split('_')[-1])
-        await update_config_menu(event, page)
-    except ValueError:
-        pass
 
 @client.on(events.CallbackQuery(pattern=b'edit_config_'))
 async def start_edit_config(event):
@@ -224,59 +122,6 @@ async def start_edit_config(event):
     step_manager.set_step(user_id, 'UPDATE_CONFIG_NAME')
     await edit_or_send(event, f"نام جدید برای کانفیگ وارد کنید (فعلی: {inbound.remark}):", buttons=back_btn)
 
-@client.on(events.CallbackQuery(pattern=b'list_user_configs'))
-async def list_configs_menu_wrapper(event):
-    await list_configs_menu(event, page=0)
-
-async def list_configs_menu(event, page=0):
-    user_id = event.sender_id
-    if user_id not in sessions:
-        back_btn = [
-            [Button.inline('🔙 بازگشت', b'back_to_main')]
-        ]
-        await edit_or_send(event, 'لطفا ابتدا یک پنل انتخاب کنید.', buttons=back_btn)
-        return
-
-    api = sessions[user_id]['api']
-    inbounds = api.list_inbounds()
-
-    if not inbounds:
-        back_btn = [
-            [Button.inline('🔙 بازگشت', b'back_to_panel')]
-        ]
-        await edit_or_send(event, '❌ هیچ کانفیگی برای نمایش وجود ندارد.', buttons=back_btn)
-        return
-
-    items_per_page = 10
-    start = page * items_per_page
-    end = start + items_per_page
-    page_items = inbounds[start:end]
-    sessions[user_id]['list_config_page'] = page
-
-    buttons = []
-    for inbound in page_items:
-        label = inbound.remark if inbound.remark else f"None_{inbound.id}"
-        buttons.append([Button.inline(f"📄 {label}", f'show_config_{inbound.id}'.encode())])
-
-    nav_buttons = []
-    if page > 0:
-        nav_buttons.append(Button.inline('⬅️ قبلی', f'list_config_page_{page - 1}'.encode()))
-    if end < len(inbounds):
-        nav_buttons.append(Button.inline('➡️ بعدی', f'list_config_page_{page + 1}'.encode()))
-    if nav_buttons:
-        buttons.append(nav_buttons)
-
-    buttons.append([Button.inline('🔙 بازگشت', b'back_to_panel')])
-    await edit_or_send(event, 'لیست کانفیگ‌ها:', buttons=buttons)
-
-@client.on(events.CallbackQuery(pattern=b'list_config_page_'))
-async def list_config_page_handler(event):
-    try:
-        page = int(event.data.decode().split('_')[-1])
-        await list_configs_menu(event, page)
-    except ValueError:
-        pass
-    
 @client.on(events.CallbackQuery(pattern=b'show_config_'))
 async def show_config_detail(event):
     user_id = event.sender_id
@@ -340,7 +185,16 @@ async def show_config_detail(event):
 
 @client.on(events.CallbackQuery(pattern=b'back_to_main'))
 async def back_to_main(event):
-    await edit_or_send(event, 'به ربات مدیریت پنل خوش آمدید!', buttons=admin_dashboard())
+    user_id = event.sender_id
+    step_manager.reset_step(user_id)
+    session = db.get_session()
+    panel_count = session.query(Panel).count()
+    session.close()
+
+    message = f"""به ربات مدیریت پنل خوش آمدید! 🤖
+🔢 تعداد سرورهای ثبت‌شده: <b>{panel_count}</b>
+    """
+    await edit_or_send(event, message, buttons=admin_dashboard(), parse_mode='html')
     
 @client.on(events.CallbackQuery(pattern=b'back_to_panel'))
 async def back_to_panel(event):
