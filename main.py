@@ -83,12 +83,60 @@ async def start_create_config(event):
     buttons = [
         [Button.inline('VMess', b'select_config_type_vmess')],
         [Button.inline('VLess', b'select_config_type_vless')],
-        [Button.inline('Shadowsocks', b'select_config_type_shadowsocks')]
+        [Button.inline('Shadowsocks', b'select_config_type_shadowsocks')], 
+        [Button.inline('🔙 بازگشت', b'back_to_panel')]
+ 
     ]
     await edit_or_send(event, 'لطفا نوع کانفیگ را انتخاب کنید:', buttons=buttons)
     step_manager.set_step(event.sender_id, 'SELECT_CONFIG_TYPE')
 
-    
+@client.on(events.CallbackQuery(pattern=b'list_user_configs'))
+async def list_configs_menu_wrapper(event):
+    await list_configs_menu(event, page=0)
+
+async def list_configs_menu(event, page=0):
+    user_id = event.sender_id
+    if user_id not in sessions:
+        await edit_or_send(event, 'لطفا ابتدا یک پنل انتخاب کنید.')
+        return
+
+    api = sessions[user_id]['api']
+    inbounds = api.list_inbounds()
+
+    if not inbounds:
+        await edit_or_send(event, '❌ هیچ کانفیگی برای نمایش وجود ندارد.')
+        return
+
+    items_per_page = 10
+    start = page * items_per_page
+    end = start + items_per_page
+    page_items = inbounds[start:end]
+    sessions[user_id]['list_config_page'] = page
+
+    buttons = []
+    for inbound in page_items:
+        label = inbound.remark if inbound.remark else f"None_{inbound.id}"
+        buttons.append([Button.inline(f"📄 {label}", f'show_config_{inbound.id}'.encode())])
+
+    nav_buttons = []
+    if page > 0:
+        nav_buttons.append(Button.inline('⬅️ قبلی', f'list_config_page_{page - 1}'.encode()))
+    if end < len(inbounds):
+        nav_buttons.append(Button.inline('➡️ بعدی', f'list_config_page_{page + 1}'.encode()))
+    if nav_buttons:
+        buttons.append(nav_buttons)
+
+    buttons.append([Button.inline('🔙 بازگشت', b'back_to_panel')])
+    await edit_or_send(event, 'لیست کانفیگ‌ها:', buttons=buttons)
+
+@client.on(events.CallbackQuery(pattern=b'list_config_page_'))
+async def list_config_page_handler(event):
+    try:
+        page = int(event.data.decode().split('_')[-1])
+        await list_configs_menu(event, page)
+    except ValueError:
+        pass
+        
 @client.on(events.CallbackQuery(pattern=b'delete_config_'))
 async def delete_selected_config(event):
     user_id = event.sender_id
