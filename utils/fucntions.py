@@ -1,4 +1,3 @@
-
 import base64 ,urllib ,json
 from .structs import ServerStatus
 
@@ -18,7 +17,6 @@ class StepManager:
 
     def is_in_step(self, user_id, step):
         return self.user_steps.get(user_id) == step
-
 
 def format_size(bytes_amount):
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
@@ -100,8 +98,6 @@ def build_vless_link(client_id, address, port, remark,network='tcp', security='n
     
     link = f"vless://{client_id}@{address}:{port}?{query_string}#{tag}"
     return link
-
-
 
 def get_user_config_link(remark, inbounds, server_address: str):
     for inbound in inbounds:
