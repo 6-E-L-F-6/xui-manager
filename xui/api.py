@@ -139,7 +139,7 @@ class XUIPanelAPI:
             print("[-] Please login first!")
             return None
 
-        url = f"{self.base_url}/xui/inbound/add"
+        url = f"{self.base_url}/inbound/add"
 
         cookies = self.session.cookies.get_dict()
         cookie_header = f"lang=en-US; session={cookies.get('session')}"
