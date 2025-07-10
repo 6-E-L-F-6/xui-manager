@@ -1,6 +1,16 @@
 # X-UI Manager
 A project based on the Telegram bot platform to manage the X-UI panel
 
+# Install X-UI panel 
+
+1. execute command on terminal
+
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/NidukaAkalanka/x-ui-english/master/install.sh)
+```
+
+2. setup username, password and port
+
 # Start the robot
 
  1. edit source bot
