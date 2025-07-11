@@ -58,8 +58,11 @@ class XUIPanelAPI:
         if not self.is_logged_in:
             print("[-] You are not logged in.")
             return False
+        clean_base_url = self.base_url.rstrip('/')
+        if clean_base_url.endswith('/xui'):
+            clean_base_url = clean_base_url[:-4]  
 
-        url = f"{self.base_url}/logout"
+        url = f"{clean_base_url}/logout"
 
         cookies = self.session.cookies.get_dict()
         cookie_header = f"lang=en-US; session={cookies.get('session')}"
