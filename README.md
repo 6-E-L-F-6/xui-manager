@@ -1,6 +1,9 @@
 # X-UI Manager
 A project based on the Telegram bot platform to manage the X-UI panel
 
+![X-UI Bot Screenshot 1](screen/InShot_20250711_185303033.jpg)
+![X-UI Bot Screenshot 2](screen/InShot_20250711_185241985.jpg)
+
 # Install X-UI panel 
 
 1. execute command on terminal
