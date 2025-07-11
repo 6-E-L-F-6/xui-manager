@@ -521,7 +521,7 @@ async def handle_config_expiry(event):
     )
 
     if config_link:
-        await edit_or_send(event, f'✅ کانفیگ با موفقیت ایجاد شد:\n\n <br> <code> {config_link} </code>', buttons=back_btn)
+        await edit_or_send(event, f'✅ کانفیگ با موفقیت ایجاد شد:<br><code>{config_link} </code>', buttons=back_btn)
     else:
         await edit_or_send(event, '❌ خطا در ایجاد کانفیگ.', buttons=back_btn)
 
